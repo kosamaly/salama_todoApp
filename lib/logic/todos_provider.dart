@@ -15,4 +15,9 @@ class TodosListProvider with ChangeNotifier {
     _todos.clear();
     notifyListeners();
   }
+
+  void removeSingleTask(String task) {
+    _todos.remove(task);
+    notifyListeners();
+  }
 }

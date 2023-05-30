@@ -134,10 +134,25 @@ class ListXWidget extends StatelessWidget {
                 ...todos
                     .map((element) => Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            element,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 15),
+                          child: Row(
+                            children: [
+                              Text(
+                                element,
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 15),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  context
+                                      .read<TodosListProvider>()
+                                      .removeSingleTask(element);
+                                },
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                ),
+                              )
+                            ],
                           ),
                         ))
                     .toList()
