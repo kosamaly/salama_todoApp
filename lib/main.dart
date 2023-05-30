@@ -64,7 +64,7 @@ class ToDoListScreenState extends State<ToDoListScreen> {
                   height: double.infinity,
                   color: Colors.white70,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       TextField(
                         controller: myController,
@@ -132,20 +132,37 @@ class ListXWidget extends StatelessWidget {
             child: ListView(
               children: [
                 ...todos
-                    .map((element) => Padding(
+                    .map((todo) => Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
                             children: [
+                              IconButton(
+                                onPressed: () {
+                                  context
+                                      .read<TodosListProvider>()
+                                      .updateTodoState(todo.task);
+                                },
+                                icon: Icon(
+                                  todo.isDone
+                                      ? Icons.check_box
+                                      : Icons.check_box_outline_blank,
+                                  color: Colors.white,
+                                ),
+                              ),
                               Text(
-                                element,
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 15),
+                                todo.task,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    decoration: todo.isDone
+                                        ? TextDecoration.lineThrough
+                                        : null),
                               ),
                               IconButton(
                                 onPressed: () {
                                   context
                                       .read<TodosListProvider>()
-                                      .removeSingleTask(element);
+                                      .removeSingleTask(todo.task);
                                 },
                                 icon: const Icon(
                                   Icons.close,
