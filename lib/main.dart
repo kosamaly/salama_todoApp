@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'logic.dart';
+import 'package:salama_todoapp/logic/todos_provider.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(
-      create: (_) => ListX(),
+      create: (_) => TodosListProvider(),
     )
   ], child: const MyApp()));
 }
-
-final String varTitle = "";
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -18,31 +16,43 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Todo State',
+      title: 'Todos App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const ToDoList(),
+      home: const ToDoListScreen(),
     );
   }
 }
 
-class ToDoList extends StatefulWidget {
-  const ToDoList({Key? key}) : super(key: key);
+class ToDoListScreen extends StatefulWidget {
+  const ToDoListScreen({Key? key}) : super(key: key);
 
   @override
-  ToDoListState createState() => ToDoListState();
+  ToDoListScreenState createState() => ToDoListScreenState();
 }
 
-class ToDoListState extends State<ToDoList> {
-  final String varTitle = "";
+class ToDoListScreenState extends State<ToDoListScreen> {
   final myController = TextEditingController();
+
+  @override
+  void dispose() {
+    myController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Todo List'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                context.read<TodosListProvider>().clearAll();
+              },
+              icon: const Icon(Icons.close))
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -59,16 +69,20 @@ class ToDoListState extends State<ToDoList> {
                       TextField(
                         controller: myController,
                         maxLength: 27,
-                        decoration: InputDecoration(labelText: "Add new task"),
+                        decoration:
+                            const InputDecoration(labelText: "Add new task"),
                       ),
                       const SizedBox(
                         height: 12,
                       ),
                       TextButton(
                           onPressed: () {
-                            context.read<ListX>().addTask(myController.text);
-                            Navigator.pop(context);
+                            context
+                                .read<TodosListProvider>()
+                                .addTask(myController.text);
                             myController.clear();
+
+                            Navigator.pop(context);
                           },
                           child: const Text(
                             "Add",
@@ -85,11 +99,11 @@ class ToDoListState extends State<ToDoList> {
       body: Container(
         color: Colors.cyan,
         width: double.infinity,
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             SizedBox(
-              height: 80,
+              height: 8,
             ),
             Expanded(child: ListXWidget()),
           ],
@@ -104,60 +118,34 @@ class ListXWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        ...context.watch<ListX>().todos.map(
-              (item) => FractionallySizedBox(
-                widthFactor: 0.9,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 20),
-                  padding: const EdgeInsets.all(22),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        ///  The `ListXWidget` should use the `item` variable inside the `Text` widget to display each task, instead of `context.watch<ListX>().todos`, which will display the entire list.
-                        item,
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+    final todos = context.watch<TodosListProvider>().todos;
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "Number of TODOs ${todos.length}",
+            style: const TextStyle(fontSize: 20, color: Colors.white),
+          ),
+          Expanded(
+            child: ListView(
+              children: [
+                ...todos
+                    .map((element) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            element,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 15),
+                          ),
+                        ))
+                    .toList()
+              ],
             ),
-      ],
+          )
+        ],
+      ),
     );
   }
 }
-// class ListXWidget extends StatelessWidget {
-// const ListXWidget({Key? key}) : super(key: key);
-//
-// @override
-// Widget build(BuildContext context) {
-//   return Column(
-//     crossAxisAlignment: CrossAxisAlignment.center,
-//     children: [
-//       ...context.watch<ListX>().todos.map(
-//             (item) => FractionallySizedBox(
-//           widthFactor: 0.9,
-//           child: Container(
-//             margin: EdgeInsets.only(top: 20),
-//             padding: EdgeInsets.all(22),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Text(
-//                   '${context.watch<ListX>().todos}',
-//                   style:
-//                   const TextStyle(fontSize: 18, color: Colors.yellow),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     ],
-//   );
-// }
-// }
